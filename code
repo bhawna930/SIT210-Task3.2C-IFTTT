@@ -1,0 +1,32 @@
+#include <Wire.h>       // Include the Wire library for I2C communication
+#include <BH1750.h>     // Include the BH1750 library for the light sensor
+
+BH1750 lightMeter;
+unsigned long previousMillis = 0; // Store the last time sunlight was checked
+const long interval = 6000;      // Interval for checking sunlight exposure (in milliseconds)
+
+void setup() {
+    Wire.begin(); // Initialize the I2C communication
+    lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE); // Initialize the BH1750 light sensor
+    Serial.begin(9600); // Initialize serial communication for debugging
+}
+
+void loop() {
+    unsigned long currentMillis = millis(); // Get the current time in milliseconds
+    
+    // Check if the specified interval has elapsed
+    if (currentMillis - previousMillis >= interval) {
+        previousMillis = currentMillis; // Update the previous time to the current time
+        
+        float lux = lightMeter.readLightLevel(); // Read the light level from the sensor
+        
+        // Check if the lux value is above the threshold (100 lux)
+        if (lux > 100) {
+            // Sunlight is hitting the terrarium
+            Serial.println("Sunlight is hitting the terrarium");
+        } else {
+            // Sunlight has stopped
+            Serial.println("Sunlight has stopped");
+        }
+    }
+}
